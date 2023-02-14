@@ -48,10 +48,12 @@ module.exports = {
             const song = result.tracks[0];
             await queue.addTrack(song)
             embed
-                .setDescription(`I have added **[${song.title}](${song.url})** to the queue`)
+                .setDescription(`I have added [${song.title}](${song.url}) to the queue`)
+                .setTitle(`${song.title}`)
                 .setThumbnail(song.thumbnail)
-                .setFooter({ text: `Duration: ${song.duration}` })
+                .setFooter({ text: `Duration of the song is ${song.duration}. Requested by ${song.requestedBy.username}` })
                 .setColor("f7c3d7")
+                //.setAuthor({ name: song.author })
 
         } else if (interaction.options.getSubcommand() === "playlist"){
             let url = interaction.options.getString("url");
@@ -64,13 +66,15 @@ module.exports = {
             }
 
             const playlst = result.playlist;
-            console.log(result.tracks.duration);
+
             await queue.addTracks(result.tracks);
+            //console.log(queue.tracks)
+
             embed 
-                .setDescription(`I have added **${result.tracks.length} songs from [${playlst.title}](${playlst.url})** to the queue`)
+                .setDescription(`I have added **${result.tracks.length} songs** from **[${playlst.title}](${playlst.url})** to the queue`)
                 .setThumbnail(result.tracks[0].thumbnail)
-                //.setFooter({ text: `Total duration of songs is ${playlst.duration}` })
-                .setColor("a6f5ff")
+                .setFooter({ text: `Requested by ${song.requestedBy.username}` })
+                .setColor("75e8eb")
 
         } else if (interaction.options.getSubcommand() === "search"){
             let url = interaction.options.getString("searchterms");
@@ -84,13 +88,14 @@ module.exports = {
             const song = result.tracks[0];
             await queue.addTrack(song)
             embed
-                .setDescription(`I have added **[${song.title}](${song.url})** to the queue`)
+                .setDescription(`I have added [${song.title}](${song.url}) to the queue`)
                 .setThumbnail(song.thumbnail)
-                .setFooter({ text: `Duration: ${song.duration}` })
+                .setTitle(`${song.title}`)
+                .setFooter({ text: `Duration of the song is ${song.duration}. Requested by ${song.requestedBy.username}` })
                 .setColor("eac0fc")
         }
     
-    if (!queue.playing) await queue.play()
+    if (!queue.playing) await queue.play();
     await interaction.editReply({
         embeds: [embed]
     })

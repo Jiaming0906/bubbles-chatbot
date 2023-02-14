@@ -152,6 +152,8 @@ for (const mufile of mucommandFiles){
 //npm install @discordjs/opus
 //npm install ytdl-core
 
+//npm install discord-player@5.3.2
+
 client.player = new Player(client, {
     ytdlOptions: {
         quality: "highestaudio",
@@ -169,7 +171,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     //check if it is music command
-    const mu = ["play", "pause", "resume","skip"];
+    const mu = ["play", "pause", "resume","skip","quit"];
     if (mu.includes(interaction.commandName)){
         const slashcmd = client.slashcommands.get(interaction.commandName);
         console.log(slashcmd);

@@ -6,12 +6,19 @@ require('dotenv').config();//npm i dotenv
 //extract commands
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const mucommandFiles = fs.readdirSync("./mucommands").filter(file => file.endsWith(".js"));
 
-//extract SlashCommandBuilder
+//extract commands from commands folder
 for (const file of commandFiles){
     const command = require(`./commands/${file}`);
     commands.push(command.data.toJSON());
 };
+
+//extract commands from mucommands folder
+for (const mufile of mucommandFiles) {
+    const mucmd = require(`./mucommands/${mufile}`);
+    commands.push(mucmd.data.toJSON());
+}
 
 //REST
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
