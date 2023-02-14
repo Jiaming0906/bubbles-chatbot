@@ -168,7 +168,6 @@ client.once(Events.ClientReady, () => {
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
-    //console.log(interaction.commandName);
     //check if it is music command
     const mu = ["play", "pause", "resume","skip"];
     if (mu.includes(interaction.commandName)){
