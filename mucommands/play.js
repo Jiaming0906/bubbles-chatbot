@@ -73,7 +73,7 @@ module.exports = {
             embed 
                 .setDescription(`I have added **${result.tracks.length} songs** from **[${playlst.title}](${playlst.url})** to the queue`)
                 .setThumbnail(result.tracks[0].thumbnail)
-                .setFooter({ text: `Requested by ${song.requestedBy.username}` })
+                .setFooter({ text: `Requested by ${interaction.user.username}` })
                 .setColor("75e8eb")
 
         } else if (interaction.options.getSubcommand() === "search"){

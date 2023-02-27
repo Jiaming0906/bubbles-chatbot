@@ -9,6 +9,6 @@ module.exports = {
             return await interaction.editReply("there are no songs in the queue");
         }
         queue.setPaused(true);
-    await interaction.editReply("Music has been paused. Use `/resume` to resume the music.");
+    await interaction.editReply("I have paused the music. Use `/resume` to resume the music");
     },
 };

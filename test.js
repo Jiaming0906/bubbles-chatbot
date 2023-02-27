@@ -1,121 +1,46 @@
-// things to do on discord.com/developers/applications
-// 1. create an application
-// 2. avatar
-// 3. bot, then add bot
-// 4. reset token, add token to .env
-// 5. message content intent turn on 
-// 6. OAuth2, custom URL
-//https://discord.com/oauth2/authorize?scope=bot&permissions=8&client_id=1071980540837765320
+//command timer with subcommand time, which sends a message tagging the user when timer is up
 
-//create a discord bot
-require('dotenv').config();//npm i dotenv
+const { SlashCommandBuilder } = require('discord.js');
 
-//get image function
-//const generateImage = require("./generateImage.js");
-//const Canvas = require("canvas");
-
-//commands
-const fs = require('node:fs');
-const path = require('node:path');
-
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-
-const client = new Client({ intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers
-]});
-
-//commands path
-client.commands = new Collection();
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles){
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    client.commands.set(command.data.name, command);
-};
-
-//open ai replies 
-const { Configuration, OpenAIApi } = require('openai');
-const configuration = new Configuration ({
-    organization: process.env.OPENAI_ORG,
-    apiKey: process.env.OPENAI_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
-
-client.on('messageCreate', async function(message){
-    try {
-        //dont reply to yourself or other bots
-        if(message.author.bot) return;
-
-        //test welcome function
-        if(message.content.substring(0,1) === "1") {
-            //get current date time
-            var currentDate = new Date().toLocaleString();
-
-            message.reply({
-                content: `It is ${currentDate}. You are barely on time, <@${message.author.id}>`,
-                files: [{
-                    attachment: "./pictures/cat2.png",
-                }]
-            })
-            return;
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('timer')
+        .setDescription('Set a timer in minutes (max 10 minutes) and you will be tagged in a message when timer is up')
+        .addSubcommand((subcommand) => 
+            subcommand
+                .setName("time")
+                .setDescription("Set a time in minutes")
+                .addStringOption((option) => option.setName("settimer").setRequired(true))
+        ),
+    async execute(interaction) {
+        const t = interaction.options.getSubcommand();
+        if (!Number.isInteger(t)){
+            return interaction.reply(`The given input value **${t}** is not a whole number. Please input a whole number up to 10.`);
         };
 
-        const gptResponse = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt:`Bubbles is a very intelligent, helpful, creative, and friendly chatbot.\n\
-            Bubbles: Hello, how are you?\n\
-            ${message.author.username}: ${message.content}\n\
-            Bubbles:`,
-            temperature:0.9,
-            max_tokens: 100,
-            stop: ["Bubbles:", "sneaky:"],
-            //echo: true,
-        })
-        message.reply(`${gptResponse.data.choices[0].text}`);
-        return;
-    } catch(err){
-        console.log(err)
-        message.reply("Sorry, I didn't get that, can you tell me again?")
+        if (t > 10){
+            return interaction.reply("I am only able to do timer for up to 10 minutes, sorry!");
+        };
+
+        if (t === 0){
+            return interaction.reply("Did you set a 0 minutes timer? So, umm, time's up?");
+        };
+
+        if (t < 0){
+            return interaction.reply("No negative numbers please!")
+        }
+
+        //t is an integer
+        const time = t * 1000 * 60 - 200
+        //time is in milliseconds, 1000 milliseconds = 1 second
+
+        await interaction.reply(`Your timer for ${t} minutes have started. You'll be tagged here when timer is up.`);
+
+        setTimeout(timeUp(), time);
+
+        function timeUp(){
+            return interaction.reply(`${t} minutes is up <@${interaction.user.id}>`);
+        }
+
     }
-});
-
-//npm i canvas
-//for adding images
-
-//commands interaction
-client.once(Events.ClientReady, () => {
-    console.log("Ready to accept commands!")
-});
-
-//commands interaction
-client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
-    const command = client.commands.get(interaction.commandName);
-
-    if (!command) return;
-
-    try {
-        await command.execute(interaction);
-    } catch (err){
-        console.log(err);
-        await interaction.reply({
-            content: "There was an error while executing this command!"
-        })
-    }
-});
-
-// log bot onto discord
-client.login(process.env.DISCORD_TOKEN);
-console.log("ChatGPT Bot is Online on Discord")
-
-//node .\index.js
-
-//"start": "node bot.js" 
-
+};

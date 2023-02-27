@@ -17,7 +17,7 @@ require('dotenv').config();
 const dotenv = require("dotenv");
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, SlashCommandAssertions } = require('discord.js');
 
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v10")
@@ -76,6 +76,8 @@ client.on('messageCreate', async function(message){
 
         //ignore messages if no words, like a picture/gif/sticker
         if(message.content === '') return;
+
+        //console.log(message);
 
         //creative messages
         if(message.content.substring(0,7).toLowerCase() === "bubbles"){
@@ -142,6 +144,7 @@ client.slashcommands = new Collection();
 const mucommandsPath = path.join(__dirname, "mucommands");
 const mucommandFiles = fs.readdirSync(mucommandsPath).filter(file => file.endsWith(".js"));
 
+//add all music commands into slashcommands
 for (const mufile of mucommandFiles){
     const mufilePath = path.join(mucommandsPath, mufile);
     const mucmd = require(mufilePath);
@@ -171,7 +174,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     //check if it is music command
-    const mu = ["play", "pause", "resume","skip","quit"];
+    const mu = ["play", "pause", "resume","skip","quit","info","shuffle"];
     if (mu.includes(interaction.commandName)){
         const slashcmd = client.slashcommands.get(interaction.commandName);
         console.log(slashcmd);
